@@ -1,7 +1,7 @@
-from asyncio.windows_events import NULL
 import pandas as pd
-from queue import Empty, PriorityQueue
+from queue import PriorityQueue
 import math
+import time
 
 # === import data to list ===
 data=pd.read_excel('Input Data2.xlsx','Car')
@@ -46,4 +46,45 @@ for i in range(node):
 # print(dist)
 # print(path)
 
-# === TSP Part DP ===
+# === TSP Part using DP ===
+dp = [[-1]*(1 << (node)) for _ in range(node)]
+def tsp(now,mark):
+    #base case already go all place need
+    if mark == (1<<(node))-1:
+        return dist[now][0]
+    if dp[now][mark] !=-1:
+        return dp[now][mark]
+    ans = 1e9
+    for i in range(node):
+        if(mark & (1<<i)==0):
+            ans = min(ans,tsp(i,mark|(1<<i))+dist[now][i])
+    dp[now][mark]=ans
+    return ans
+
+a=tsp(0,1)
+print(a)
+# Traceback Path
+trace=[0]
+mark=1
+now=0
+n=a
+while len(trace)<node-1:
+    ans=1e9
+    next=0
+    for i in range(node):
+        if mark&(1<<i)==0 and dp[i][mark|(1<<i)]==n-dist[now][i]:
+            next=i
+            break
+    trace.append(next)
+    n-=dist[now][i]
+    mark|=1<<next
+    now=next
+for i in range(node):
+    if i not in trace:
+        trace.append(i)
+        trace.append(0)
+        break
+anspath=[0]
+for i in range(len(trace)-1):
+    anspath+=path[trace[i]][trace[i+1]][1:]
+print(anspath)
