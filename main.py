@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import pandas as pd
 import numpy as np
 import openpyxl
@@ -10,6 +11,7 @@ frame_bg='black'
 font='TH Sarabun New'
 font_header_size=40
 font_body_size=20
+font_table_size=15
 font_col='white'
 
 # === map node with number (easy to use) ===
@@ -21,7 +23,6 @@ for i in range(node):
     key[l[i][0]]=i
     key[i]=l[i][0]
 #============================================
-
 exportdata=pd.read_excel('Export Data.xlsx')
 l=exportdata.values.tolist()
 allplace=l[-1][-1].split(',')
@@ -36,6 +37,15 @@ def findPearson(first,firstmean,second,secondmean):
         uppersum+=(first[k]-firstmean)*(second[k]-secondmean)
         below1+= (first[k]-firstmean)**2
         below2+= (second[k]-secondmean)**2
+    return uppersum/((below1*below2)**0.5)
+def findCosine(first,second):
+    uppersum=0 # fraction in cosine similarity formular
+    below1=0 # first denominator in cosine similarity formular
+    below2=0 # second denominator in cosine similarity formular
+    for k in range(len(first)):
+        uppersum+=first[k]*second[k]
+        below1+=first[k]**2
+        below2+=second[k]**2
     return uppersum/((below1*below2)**0.5)
 def chvisited(datarow,tarvisited):
     tmpvisit=0
@@ -66,24 +76,30 @@ def calculate():
     mean[1]=sum(ttar)/3
     ctar=[float(_) for _ in l[((needtogo-3)//2)+oneset+oneset][5].split(',')]
     mean[2]=sum(ctar)/3
-    print(mean)
-    pqD=PriorityQueue() # [Pearson similarity value , index]
-    pqT=PriorityQueue() # [Pearson similarity value , index]
-    pqC=PriorityQueue() # [Pearson similarity value , index]
+    # print(mean)
+    pqDpearson=PriorityQueue() # [Pearson similarity value , index] max heap
+    pqTpearson=PriorityQueue() # [Pearson similarity value , index] max heap
+    pqCpearson=PriorityQueue() # [Pearson similarity value , index] max heap
+    pqDcosine=PriorityQueue() # [Cosine similarity value , index] max heap
+    pqTcosine=PriorityQueue() # [Cosine similarity value , index] max heap
+    pqCcosine=PriorityQueue() # [Cosine similarity value , index] max heap
     for i in range(oneset):
         if(chvisited(i,visited[0])):
             d=[float(_) for _ in l[i][5].split(',')]
             dmean=sum(d)/3
-            pqD.put([-findPearson(dtar,mean[0],d,dmean),i])
-        if(chvisited(i,visited[1])):
+            pqDpearson.put([-findPearson(dtar,mean[0],d,dmean),i])
+            pqDcosine.put([-findCosine(dtar,d),i])
+        if(chvisited(i+oneset,visited[1])):
             t=[float(_) for _ in l[i+oneset][5].split(',')]
             tmean=sum(t)/3
-            pqT.put([-findPearson(ttar,mean[1],t,tmean),i])
-        if(chvisited(i,visited[2])):
+            pqTpearson.put([-findPearson(ttar,mean[1],t,tmean),i+oneset])
+            pqTcosine.put([-findCosine(ttar,t),i+oneset])
+        if(chvisited(i+oneset+oneset,visited[2])):
             c=[float(_) for _ in l[i+oneset+oneset][5].split(',')]
             cmean=sum(c)/3
-            pqC.put([-findPearson(ctar,mean[2],c,cmean),i])
-    return pqD,pqT,pqC
+            pqCpearson.put([-findPearson(ctar,mean[2],c,cmean),i+oneset+oneset])
+            pqCcosine.put([-findCosine(ctar,c),i+oneset+oneset])
+    return pqDpearson,pqTpearson,pqCpearson,pqDcosine,pqTcosine,pqCcosine
 
 #============================= All Page ==============================
 class SampleApp(tk.Tk):
@@ -126,12 +142,115 @@ class ResultPage(tk.Frame):
     def __init__(self, master):
         
         tk.Frame.__init__(self,master,bg=frame_bg)
-        tk.Label(self, text="เส้นทางที่ดีที่สุด 5 อันดับคือ", font=(font,font_header_size), fg=font_col,bg=frame_bg).pack(padx=0, pady=20, side=tk.TOP)
-        d,t,c=calculate()
+        tk.Label(self, text="เส้นทางที่ดีที่สุดและเส้นทางที่ใกล้เคียง", font=(font,font_header_size), fg=font_col,bg=frame_bg).pack(padx=0, pady=20, side=tk.TOP)
+        dpearson,tpearson,cpearson,dcosine,tcosine,ccosine=calculate()
+
+        tabControl = ttk.Notebook(self,width=1200, height=400)
+        tab1 = ttk.Frame(tabControl)
+        tabControl1 = ttk.Notebook(tab1,width=1150, height=350)
+        tab1_1 = ttk.Frame(tabControl1)
+        tab1_2 = ttk.Frame(tabControl1)
+        tab1_3 = ttk.Frame(tabControl1)
+
+        tab2 = ttk.Frame(tabControl)
+        tabControl2 = ttk.Notebook(tab2,width=1150, height=350)
+        tab2_1 = ttk.Frame(tabControl2)
+        tab2_2 = ttk.Frame(tabControl2)
+        tab2_3 = ttk.Frame(tabControl2)
+
+        tabControl.add(tab1, text='Pearson Similarity')
+        tabControl.add(tab2, text='Cosine Similarity')
+        tabControl1.add(tab1_1, text='เส้นทางที่ระยะทางสั้นที่สุด')
+        tabControl1.add(tab1_2, text='เส้นทางที่ใช้เวลาน้อยที่สุด')
+        tabControl1.add(tab1_3, text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด')
+        tabControl2.add(tab2_1, text='เส้นทางที่ระยะทางสั้นที่สุด')
+        tabControl2.add(tab2_2, text='เส้นทางที่ใช้เวลาน้อยที่สุด')
+        tabControl2.add(tab2_3, text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด')
+
+        tabControl.pack(padx=0, pady=20, side=tk.TOP)
+        tabControl1.pack(padx=0, pady=0, side=tk.TOP)
+        tabControl2.pack(padx=0, pady=0, side=tk.TOP)
+
+        ttk.Label(tab1_1,text='เส้นทางที่ระยะทางสั้นที่สุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab1_1,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+        ttk.Label(tab1_1,text='ค่า Peason Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+        ttk.Label(tab1_2,text='เส้นทางที่ใช้เวลาเดินทางน้อยสุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab1_2,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+        ttk.Label(tab1_2,text='ค่า Peason Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+        ttk.Label(tab1_3,text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab1_3,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+        ttk.Label(tab1_3,text='ค่า Peason Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+        prev1,prev2,prev3=0,0,0
+        tmp=0
         for i in range(0,5):
-            print(d.get(),end=' ')
-            print(t.get(),end=' ')
-            print(c.get())
+            if not dpearson.empty(): tmp=dpearson.get()
+            while(prev1!=0 and (l[tmp[1]][5]==l[prev1[1]][5] or l[tmp[1]][6]==l[prev1[1]][6] or prev1[0]==tmp[0]) and not dpearson.empty()):
+                tmp=dpearson.get()
+            s=l[tmp[1]][1]
+            s=s[:110]+"\n"+s[110:]
+            ttk.Label(tab1_1, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab1_1, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab1_1, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
+            prev1=tmp
+            if not tpearson.empty(): tmp=tpearson.get()
+            while(prev2!=0 and (l[tmp[1]][5]==l[prev2[1]][5] or l[tmp[1]][6]==l[prev2[1]][6] or prev2[0]==tmp[0]) and not tpearson.empty()):
+                tmp=tpearson.get()
+            s=l[tmp[1]][1]
+            s=s[:110]+"\n"+s[110:]
+            ttk.Label(tab1_2, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab1_2, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab1_2, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
+            prev2=tmp
+            if not cpearson.empty(): tmp=cpearson.get()
+            while(prev3!=0 and (l[tmp[1]][5]==l[prev3[1]][5] or l[tmp[1]][6]==l[prev3[1]][6] or prev3[0]==tmp[0]) and not cpearson.empty()):
+                tmp=cpearson.get()
+            s=l[tmp[1]][1]
+            s=s[:110]+"\n"+s[110:]
+            ttk.Label(tab1_3, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab1_3, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab1_3, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
+            prev3=tmp
+
+        ttk.Label(tab2_1,text='เส้นทางที่ระยะทางสั้นที่สุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab2_1,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+        ttk.Label(tab2_1,text='ค่า Cosine Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+        ttk.Label(tab2_2,text='เส้นทางที่ใช้เวลาเดินทางน้อยสุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab2_2,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+        ttk.Label(tab2_2,text='ค่า Cosine Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+        ttk.Label(tab2_3,text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab2_3,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+        ttk.Label(tab2_3,text='ค่า Cosine Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+        prev1,prev2,prev3=0,0,0
+        tmp=0
+        for i in range(0,5):
+            if not dcosine.empty(): tmp=dcosine.get()
+            while(prev1!=0 and (l[tmp[1]][5]==l[prev1[1]][5] or l[tmp[1]][6]==l[prev1[1]][6] or prev1[0]==tmp[0]) and not dcosine.empty()):
+                tmp=dcosine.get()
+            s=l[tmp[1]][1]
+            s=s[:110]+"\n"+s[110:]
+            ttk.Label(tab2_1, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab2_1, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab2_1, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
+            prev1=tmp
+            if not tcosine.empty(): tmp=tcosine.get()
+            while(prev2!=0 and (l[tmp[1]][5]==l[prev2[1]][5] or l[tmp[1]][6]==l[prev2[1]][6] or prev2[0]==tmp[0]) and not tcosine.empty()):
+                tmp=tcosine.get()
+            s=l[tmp[1]][1]
+            s=s[:110]+"\n"+s[110:]
+            ttk.Label(tab2_2, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab2_2, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab2_2, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
+            prev2=tmp
+            if not ccosine.empty(): tmp=ccosine.get()
+            while(prev3!=0 and (l[tmp[1]][5]==l[prev3[1]][5] or l[tmp[1]][6]==l[prev3[1]][6] or prev3[0]==tmp[0]) and not ccosine.empty()):
+                tmp=ccosine.get()
+            s=l[tmp[1]][1]
+            s=s[:110]+"\n"+s[110:]
+            ttk.Label(tab2_3, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab2_3, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
+            ttk.Label(tab2_3, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
+            prev3=tmp
+
         tk.Button(self, text='เลือกสถานที่ใหม่', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(StartPage)).pack(padx=20, pady=20, side=tk.TOP)
 
 if __name__ == "__main__": #Just make sure this file can't be import by other file.
