@@ -144,112 +144,64 @@ class ResultPage(tk.Frame):
         tk.Frame.__init__(self,master,bg=frame_bg)
         tk.Label(self, text="เส้นทางที่ดีที่สุดและเส้นทางที่ใกล้เคียง", font=(font,font_header_size), fg=font_col,bg=frame_bg).pack(padx=0, pady=20, side=tk.TOP)
         dpearson,tpearson,cpearson,dcosine,tcosine,ccosine=calculate()
+        pearson=[dpearson,tpearson,cpearson]
+        cosine=[dcosine,tcosine,ccosine]
 
         tabControl = ttk.Notebook(self,width=1200, height=400)
-        tab1 = ttk.Frame(tabControl)
-        tabControl1 = ttk.Notebook(tab1,width=1150, height=350)
-        tab1_1 = ttk.Frame(tabControl1)
-        tab1_2 = ttk.Frame(tabControl1)
-        tab1_3 = ttk.Frame(tabControl1)
+        tab_ = [ttk.Frame(tabControl),ttk.Frame(tabControl)]
+        tabControl_ = [ttk.Notebook(tab_[0],width=1150, height=350),ttk.Notebook(tab_[1],width=1150, height=350)]
+        tab__= [[tk.Frame(tabControl_[0]),ttk.Frame(tabControl_[0]),ttk.Frame(tabControl_[0])],
+               [ttk.Frame(tabControl_[1]),ttk.Frame(tabControl_[1]),ttk.Frame(tabControl_[1])]]
 
-        tab2 = ttk.Frame(tabControl)
-        tabControl2 = ttk.Notebook(tab2,width=1150, height=350)
-        tab2_1 = ttk.Frame(tabControl2)
-        tab2_2 = ttk.Frame(tabControl2)
-        tab2_3 = ttk.Frame(tabControl2)
-
-        tabControl.add(tab1, text='Pearson Similarity')
-        tabControl.add(tab2, text='Cosine Similarity')
-        tabControl1.add(tab1_1, text='เส้นทางที่ระยะทางสั้นที่สุด')
-        tabControl1.add(tab1_2, text='เส้นทางที่ใช้เวลาน้อยที่สุด')
-        tabControl1.add(tab1_3, text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด')
-        tabControl2.add(tab2_1, text='เส้นทางที่ระยะทางสั้นที่สุด')
-        tabControl2.add(tab2_2, text='เส้นทางที่ใช้เวลาน้อยที่สุด')
-        tabControl2.add(tab2_3, text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด')
-
+        tabControl.add(tab_[0], text='Pearson Similarity')
+        tabControl.add(tab_[1], text='Cosine Similarity')
+        for i in range(2):
+            tabControl_[i].add(tab__[i][0], text='เส้นทางที่ระยะทางสั้นที่สุด')
+            tabControl_[i].add(tab__[i][1], text='เส้นทางที่ใช้เวลาน้อยที่สุด')
+            tabControl_[i].add(tab__[i][2], text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด')
         tabControl.pack(padx=0, pady=20, side=tk.TOP)
-        tabControl1.pack(padx=0, pady=0, side=tk.TOP)
-        tabControl2.pack(padx=0, pady=0, side=tk.TOP)
+        tabControl_[0].pack(padx=0, pady=0, side=tk.TOP)
+        tabControl_[1].pack(padx=0, pady=0, side=tk.TOP)
+        
+        ttk.Label(tab__[0][0],text='เส้นทางที่ระยะทางสั้นที่สุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab__[0][1],text='เส้นทางที่ใช้เวลาเดินทางน้อยสุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab__[0][2],text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        for i in range(3):
+            ttk.Label(tab__[0][i],text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+            ttk.Label(tab__[0][i],text='ค่า Peason Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+        prev=[0,0,0]
+        tmp=0
+        for i in range(5):
+            for j in range(3):
+                if not pearson[j].empty(): tmp=pearson[j].get()
+                while(prev[j]!=0 and (l[tmp[1]][5]==l[prev[j][1]][5] or l[tmp[1]][6]==l[prev[j][1]][6] or prev[j][0]==tmp[0]) and not pearson[j].empty()):
+                    tmp=pearson[j].get()
+                s=l[tmp[1]][1]
+                s=s[:110]+"\n"+s[110:]
+                ttk.Label(tab__[0][j], text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
+                ttk.Label(tab__[0][j], text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
+                ttk.Label(tab__[0][j], text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
+                prev[j]=tmp
 
-        ttk.Label(tab1_1,text='เส้นทางที่ระยะทางสั้นที่สุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
-        ttk.Label(tab1_1,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
-        ttk.Label(tab1_1,text='ค่า Peason Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
-        ttk.Label(tab1_2,text='เส้นทางที่ใช้เวลาเดินทางน้อยสุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
-        ttk.Label(tab1_2,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
-        ttk.Label(tab1_2,text='ค่า Peason Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
-        ttk.Label(tab1_3,text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
-        ttk.Label(tab1_3,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
-        ttk.Label(tab1_3,text='ค่า Peason Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
-        prev1,prev2,prev3=0,0,0
+        ttk.Label(tab__[1][0],text='เส้นทางที่ระยะทางสั้นที่สุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab__[1][1],text='เส้นทางที่ใช้เวลาเดินทางน้อยสุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        ttk.Label(tab__[1][2],text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
+        for i in range(3):
+            ttk.Label(tab__[1][i],text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+            ttk.Label(tab__[1][i],text='ค่า Cosine Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+        prev=[0,0,0]
         tmp=0
         for i in range(0,5):
-            if not dpearson.empty(): tmp=dpearson.get()
-            while(prev1!=0 and (l[tmp[1]][5]==l[prev1[1]][5] or l[tmp[1]][6]==l[prev1[1]][6] or prev1[0]==tmp[0]) and not dpearson.empty()):
-                tmp=dpearson.get()
-            s=l[tmp[1]][1]
-            s=s[:110]+"\n"+s[110:]
-            ttk.Label(tab1_1, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab1_1, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab1_1, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
-            prev1=tmp
-            if not tpearson.empty(): tmp=tpearson.get()
-            while(prev2!=0 and (l[tmp[1]][5]==l[prev2[1]][5] or l[tmp[1]][6]==l[prev2[1]][6] or prev2[0]==tmp[0]) and not tpearson.empty()):
-                tmp=tpearson.get()
-            s=l[tmp[1]][1]
-            s=s[:110]+"\n"+s[110:]
-            ttk.Label(tab1_2, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab1_2, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab1_2, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
-            prev2=tmp
-            if not cpearson.empty(): tmp=cpearson.get()
-            while(prev3!=0 and (l[tmp[1]][5]==l[prev3[1]][5] or l[tmp[1]][6]==l[prev3[1]][6] or prev3[0]==tmp[0]) and not cpearson.empty()):
-                tmp=cpearson.get()
-            s=l[tmp[1]][1]
-            s=s[:110]+"\n"+s[110:]
-            ttk.Label(tab1_3, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab1_3, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab1_3, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
-            prev3=tmp
-
-        ttk.Label(tab2_1,text='เส้นทางที่ระยะทางสั้นที่สุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
-        ttk.Label(tab2_1,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
-        ttk.Label(tab2_1,text='ค่า Cosine Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
-        ttk.Label(tab2_2,text='เส้นทางที่ใช้เวลาเดินทางน้อยสุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
-        ttk.Label(tab2_2,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
-        ttk.Label(tab2_2,text='ค่า Cosine Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
-        ttk.Label(tab2_3,text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
-        ttk.Label(tab2_3,text='ระยะทาง(km),เวลา(นาที),ราคา(บาท)', font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
-        ttk.Label(tab2_3,text='ค่า Cosine Similarity', font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
-        prev1,prev2,prev3=0,0,0
-        tmp=0
-        for i in range(0,5):
-            if not dcosine.empty(): tmp=dcosine.get()
-            while(prev1!=0 and (l[tmp[1]][5]==l[prev1[1]][5] or l[tmp[1]][6]==l[prev1[1]][6] or prev1[0]==tmp[0]) and not dcosine.empty()):
-                tmp=dcosine.get()
-            s=l[tmp[1]][1]
-            s=s[:110]+"\n"+s[110:]
-            ttk.Label(tab2_1, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab2_1, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab2_1, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
-            prev1=tmp
-            if not tcosine.empty(): tmp=tcosine.get()
-            while(prev2!=0 and (l[tmp[1]][5]==l[prev2[1]][5] or l[tmp[1]][6]==l[prev2[1]][6] or prev2[0]==tmp[0]) and not tcosine.empty()):
-                tmp=tcosine.get()
-            s=l[tmp[1]][1]
-            s=s[:110]+"\n"+s[110:]
-            ttk.Label(tab2_2, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab2_2, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab2_2, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
-            prev2=tmp
-            if not ccosine.empty(): tmp=ccosine.get()
-            while(prev3!=0 and (l[tmp[1]][5]==l[prev3[1]][5] or l[tmp[1]][6]==l[prev3[1]][6] or prev3[0]==tmp[0]) and not ccosine.empty()):
-                tmp=ccosine.get()
-            s=l[tmp[1]][1]
-            s=s[:110]+"\n"+s[110:]
-            ttk.Label(tab2_3, text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab2_3, text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
-            ttk.Label(tab2_3, text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
-            prev3=tmp
+            for j in range(3):
+                if not cosine[j].empty(): tmp=cosine[j].get()
+                while(prev[j]!=0 and (l[tmp[1]][5]==l[prev[j][1]][5] or l[tmp[1]][6]==l[prev[j][1]][6] or prev[j][0]==tmp[0]) and not cosine[j].empty()):
+                    tmp=cosine[j].get()
+                s=l[tmp[1]][1]
+                s=s[:110]+"\n"+s[110:]
+                ttk.Label(tab__[1][j], text=s, font=(font,font_table_size)).grid(column=0,row=i+1,padx=10,pady=0,sticky='W')
+                ttk.Label(tab__[1][j], text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
+                ttk.Label(tab__[1][j], text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
+                prev[j]=tmp
 
         tk.Button(self, text='เลือกสถานที่ใหม่', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(StartPage)).pack(padx=20, pady=20, side=tk.TOP)
 
