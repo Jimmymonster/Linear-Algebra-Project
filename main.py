@@ -148,21 +148,32 @@ class ResultPage(tk.Frame):
         cosine=[dcosine,tcosine,ccosine]
 
         tabControl = ttk.Notebook(self,width=1200, height=400)
-        tab_ = [ttk.Frame(tabControl),ttk.Frame(tabControl)]
-        tabControl_ = [ttk.Notebook(tab_[0],width=1150, height=350),ttk.Notebook(tab_[1],width=1150, height=350)]
+        tab_ = [ttk.Frame(tabControl),ttk.Frame(tabControl),ttk.Frame(tabControl),ttk.Frame(tabControl)]
+        tabControl_ = [ttk.Notebook(tab_[0],width=1150, height=350),ttk.Notebook(tab_[1],width=1150, height=350),ttk.Notebook(tab_[2],width=1150, height=350),ttk.Notebook(tab_[3],width=1150, height=350)]
         tab__= [[tk.Frame(tabControl_[0]),ttk.Frame(tabControl_[0]),ttk.Frame(tabControl_[0])],
-               [ttk.Frame(tabControl_[1]),ttk.Frame(tabControl_[1]),ttk.Frame(tabControl_[1])]]
+               [ttk.Frame(tabControl_[1]),ttk.Frame(tabControl_[1]),ttk.Frame(tabControl_[1])],
+               [ttk.Frame(tabControl_[2]),ttk.Frame(tabControl_[2]),ttk.Frame(tabControl_[2])],
+               [ttk.Frame(tabControl_[3]),ttk.Frame(tabControl_[3]),ttk.Frame(tabControl_[3])]]
 
         tabControl.add(tab_[0], text='Pearson Similarity')
         tabControl.add(tab_[1], text='Cosine Similarity')
+        tabControl.add(tab_[2], text='Covariance matrix')
+        tabControl.add(tab_[3], text='Graph')
+        #==================================================================================================
         for i in range(2):
             tabControl_[i].add(tab__[i][0], text='เส้นทางที่ระยะทางสั้นที่สุด')
             tabControl_[i].add(tab__[i][1], text='เส้นทางที่ใช้เวลาน้อยที่สุด')
             tabControl_[i].add(tab__[i][2], text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด')
+        for i in range(2,4):
+            tabControl_[i].add(tab__[i][0], text='ข้อมูลของเส้นทางที่ระยะทางน้อยที่สุด')
+            tabControl_[i].add(tab__[i][1], text='ข้อมูลของเส้นทางที่ใช้เวลาน้อยที่สุด')
+            tabControl_[i].add(tab__[i][2], text='ข้อมูลของเส้นทางที่ค่าใช้จ่ายน้อยที่สุด')
         tabControl.pack(padx=0, pady=20, side=tk.TOP)
         tabControl_[0].pack(padx=0, pady=0, side=tk.TOP)
         tabControl_[1].pack(padx=0, pady=0, side=tk.TOP)
-        
+        tabControl_[2].pack(padx=0, pady=0, side=tk.TOP)
+        tabControl_[3].pack(padx=0, pady=0, side=tk.TOP)
+        #==================================================================================================
         ttk.Label(tab__[0][0],text='เส้นทางที่ระยะทางสั้นที่สุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
         ttk.Label(tab__[0][1],text='เส้นทางที่ใช้เวลาเดินทางน้อยสุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
         ttk.Label(tab__[0][2],text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด(เรียงตามค่า Pearson จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
@@ -182,7 +193,7 @@ class ResultPage(tk.Frame):
                 ttk.Label(tab__[0][j], text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
                 ttk.Label(tab__[0][j], text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
                 prev[j]=tmp
-
+        #==================================================================================================
         ttk.Label(tab__[1][0],text='เส้นทางที่ระยะทางสั้นที่สุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
         ttk.Label(tab__[1][1],text='เส้นทางที่ใช้เวลาเดินทางน้อยสุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
         ttk.Label(tab__[1][2],text='เส้นทางที่ค่าใช้จ่ายน้อยที่สุด(เรียงตามค่า Cosine จากมากไปน้อย)', font=(font,font_table_size)).grid(column=0,row=0,padx=10,pady=0)
@@ -202,7 +213,9 @@ class ResultPage(tk.Frame):
                 ttk.Label(tab__[1][j], text=l[tmp[1]][5], font=(font,font_table_size)).grid(column=1,row=i+1,padx=10,pady=0,sticky='W')
                 ttk.Label(tab__[1][j], text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
                 prev[j]=tmp
+        #==================================================================================================
 
+        #==================================================================================================
         tk.Button(self, text='เลือกสถานที่ใหม่', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(StartPage)).pack(padx=20, pady=20, side=tk.TOP)
 
 if __name__ == "__main__": #Just make sure this file can't be import by other file.
