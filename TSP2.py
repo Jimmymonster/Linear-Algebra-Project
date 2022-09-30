@@ -7,10 +7,11 @@ exportcell={'Path No': [],
             'Type' : [],
             'Minimum Value' : [],
             'Need to visit' : [],
+            'All value(dist,time,cost)' : [],
             'All place visited' : []}
 
 # === import data to list ===
-data=pd.read_excel('Input Data2.xlsx','Car')
+data=pd.read_excel('Input Data.xlsx','Car')
 l=data.values.tolist()
 node = len(l)
 # === map node with number (easy to use) ===
@@ -34,17 +35,23 @@ for i in l:
 
 # === dijkstra every node for allpair shortest path ===
 dist=[[1e9 for _ in range(node)] for _ in range(node)]
+dist2=[[1e9 for _ in range(node)] for _ in range(node)]
+dist3=[[1e9 for _ in range(node)] for _ in range(node)]
 path=[[[j] for i in range(node)] for j in range(node)]
 def dijkstra(node,type):
     global dist
     he=PriorityQueue()
     dist[node][node]=0
+    dist2[node][node]=0
+    dist3[node][node]=0
     he.put([0,node])
     while not he.empty():
         tmp=he.get()
         for i in dic[tmp[1]]:
             if dist[node][i[0]]>dist[node][tmp[1]]+i[1][type]:
                 dist[node][i[0]]=dist[node][tmp[1]]+i[1][type]
+                dist2[node][i[0]]=dist2[node][tmp[1]]+i[1][(type+1)%3]
+                dist3[node][i[0]]=dist3[node][tmp[1]]+i[1][(type+2)%3]
                 path[node][i[0]]=path[node][tmp[1]]+[i[0]]
                 he.put([i[1][type],i[0]])
 
@@ -73,8 +80,10 @@ def tsp(now,mark,need):
 # combination
 idx=0
 def play(type):
-    global dist,path,dp
+    global dist,path,dp,dist2,dist3
     dist=[[1e9 for _ in range(node)] for _ in range(node)]
+    dist2=[[1e9 for _ in range(node)] for _ in range(node)]
+    dist3=[[1e9 for _ in range(node)] for _ in range(node)]
     path=[[[j] for i in range(node)] for j in range(node)]
     for i in range(node):
         dijkstra(i,type)
@@ -137,6 +146,14 @@ def play(type):
         s=s[0:-1]
         exportcell['Need to visit'].append(s)
         s=""
+        d=[0,0,0]
+        for i in range(0,len(anspath)-1):
+            d[type]+=dist[anspath[i]][anspath[i+1]]
+            d[(type+1)%3]+=dist2[anspath[i]][anspath[i+1]]
+            d[(type+2)%3]+=dist3[anspath[i]][anspath[i+1]]
+        s= "{:g}".format(d[0])+","+"{:g}".format(d[1])+","+"{:g}".format(d[2])
+        exportcell['All value(dist,time,cost)'].append(s)
+        s=""
         for i in range(0,node):
             if i in anspath:
                 s+=key[i]+','
@@ -146,5 +163,5 @@ def play(type):
 play(0)
 play(1)
 play(2)
-data_export=pd.DataFrame(exportcell,columns=['Path No', 'Path' , 'Type' ,'Minimum Value' , 'Need to visit' , 'All place visited' ])
-data_export.to_excel(r'D:/KMITL/Year2 1st/Linear Algebra/Project/Export Data2.xlsx',index=False,header=True)
+data_export=pd.DataFrame(exportcell,columns=['Path No', 'Path' , 'Type' ,'Minimum Value' , 'Need to visit' , 'All value(dist,time,cost)','All place visited' ])
+data_export.to_excel(r'../Project/Export Data.xlsx',index=False,header=True)
