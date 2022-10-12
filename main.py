@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import *
 import pandas as pd
 import numpy as np
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,NavigationToolbar2Tk)
 import openpyxl
 from queue import PriorityQueue
 # Global Var
@@ -83,23 +86,56 @@ def calculate():
     pqDcosine=PriorityQueue() # [Cosine similarity value , index] max heap
     pqTcosine=PriorityQueue() # [Cosine similarity value , index] max heap
     pqCcosine=PriorityQueue() # [Cosine similarity value , index] max heap
+    # for cov Matrix
+    sumDis=[0,0,0]
+    sumTime=[0,0,0]
+    sumCost=[0,0,0]
+    matDis=[[0 for i in range(3)] for j in range(oneset)]
+    matTime=[[0 for i in range(3)] for j in range(oneset)]
+    matCost=[[0 for i in range(3)] for j in range(oneset)]
+    covDis=[[0 for i in range(3)] for j in range(3)]
+    covTime=[[0 for i in range(3)] for j in range(3)]
+    covCost=[[0 for i in range(3)] for j in range(3)]
     for i in range(oneset):
+        d=[float(_) for _ in l[i][5].split(',')]
+        t=[float(_) for _ in l[i+oneset][5].split(',')]
+        c=[float(_) for _ in l[i+oneset+oneset][5].split(',')]
         if(chvisited(i,visited[0])):
-            d=[float(_) for _ in l[i][5].split(',')]
             dmean=sum(d)/3
             pqDpearson.put([-findPearson(dtar,mean[0],d,dmean),i])
             pqDcosine.put([-findCosine(dtar,d),i])
         if(chvisited(i+oneset,visited[1])):
-            t=[float(_) for _ in l[i+oneset][5].split(',')]
             tmean=sum(t)/3
             pqTpearson.put([-findPearson(ttar,mean[1],t,tmean),i+oneset])
             pqTcosine.put([-findCosine(ttar,t),i+oneset])
         if(chvisited(i+oneset+oneset,visited[2])):
-            c=[float(_) for _ in l[i+oneset+oneset][5].split(',')]
             cmean=sum(c)/3
             pqCpearson.put([-findPearson(ctar,mean[2],c,cmean),i+oneset+oneset])
             pqCcosine.put([-findCosine(ctar,c),i+oneset+oneset])
-    return pqDpearson,pqTpearson,pqCpearson,pqDcosine,pqTcosine,pqCcosine
+        for j in range(3):
+            sumDis[j]+=d[j]
+            matDis[i][j]=d[j]
+            sumTime[j]+=t[j]
+            matTime[i][j]=t[j]
+            sumCost[j]+=c[j]
+            matCost[i][j]=c[j]
+    for i in range(oneset):
+        for j in range(3):
+            matDis[i][j]-=sumDis[j]/oneset
+            matTime[i][j]-=sumTime[j]/oneset
+            matCost[i][j]-=sumCost[j]/oneset
+    for i in range(oneset):
+        for j in range(3):
+            for k in range(3):
+                covDis[j][k]+=matDis[i][j]*matDis[i][k]
+                covTime[j][k]+=matTime[i][j]*matTime[i][k]
+                covCost[j][k]+=matCost[i][j]*matCost[i][k]
+    for i in range(3):
+        for j in range(3):
+            covDis[i][j]/=oneset
+            covTime[i][j]/=oneset
+            covCost[i][j]/=oneset
+    return pqDpearson,pqTpearson,pqCpearson,pqDcosine,pqTcosine,pqCcosine,covDis,covTime,covCost
 
 #============================= All Page ==============================
 class SampleApp(tk.Tk):
@@ -143,7 +179,7 @@ class ResultPage(tk.Frame):
         
         tk.Frame.__init__(self,master,bg=frame_bg)
         tk.Label(self, text="เส้นทางที่ดีที่สุดและเส้นทางที่ใกล้เคียง", font=(font,font_header_size), fg=font_col,bg=frame_bg).pack(padx=0, pady=20, side=tk.TOP)
-        dpearson,tpearson,cpearson,dcosine,tcosine,ccosine=calculate()
+        dpearson,tpearson,cpearson,dcosine,tcosine,ccosine,covDis,covTime,covCost=calculate()
         pearson=[dpearson,tpearson,cpearson]
         cosine=[dcosine,tcosine,ccosine]
 
@@ -214,7 +250,19 @@ class ResultPage(tk.Frame):
                 ttk.Label(tab__[1][j], text=str(-tmp[0]), font=(font,font_table_size)).grid(column=2,row=i+1,padx=10,pady=0,sticky='W')
                 prev[j]=tmp
         #==================================================================================================
-
+        for i in range(3):
+            ttk.Label(tab__[2][i],text='ระยะทาง',font=(font,font_table_size)).grid(column=1,row=0,padx=10,pady=0)
+            ttk.Label(tab__[2][i],text='เวลา',font=(font,font_table_size)).grid(column=2,row=0,padx=10,pady=0)
+            ttk.Label(tab__[2][i],text='ค่าใช้จ่าย',font=(font,font_table_size)).grid(column=3,row=0,padx=10,pady=0)
+            ttk.Label(tab__[2][i],text='ระยะทาง',font=(font,font_table_size)).grid(column=0,row=1,padx=10,pady=0)
+            ttk.Label(tab__[2][i],text='เวลา',font=(font,font_table_size)).grid(column=0,row=2,padx=10,pady=0)
+            ttk.Label(tab__[2][i],text='ค่าใช้จ่าย',font=(font,font_table_size)).grid(column=0,row=3,padx=10,pady=0)
+            for j in range(3):
+                ttk.Label(tab__[2][0],text=str(covDis[i][j]),font=(font,font_table_size)).grid(column=i+1,row=j+1,padx=10,pady=0)
+                ttk.Label(tab__[2][1],text=str(covTime[i][j]),font=(font,font_table_size)).grid(column=i+1,row=j+1,padx=10,pady=0)
+                ttk.Label(tab__[2][2],text=str(covCost[i][j]),font=(font,font_table_size)).grid(column=i+1,row=j+1,padx=10,pady=0)
+        #==================================================================================================
+        
         #==================================================================================================
         tk.Button(self, text='เลือกสถานที่ใหม่', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(StartPage)).pack(padx=20, pady=20, side=tk.TOP)
 
