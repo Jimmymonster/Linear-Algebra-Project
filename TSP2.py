@@ -11,7 +11,7 @@ exportcell={'Path No': [],
             'All place visited' : []}
 
 # === import data to list ===
-data=pd.read_excel('Input Data.xlsx','Car')
+data=pd.read_excel('Input Data.xlsx','Sheet1')
 l=data.values.tolist()
 node = len(l)
 # === map node with number (easy to use) ===
