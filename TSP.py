@@ -4,7 +4,7 @@ import sys
 sys.setrecursionlimit(5000)
 # import data to list
 # maybe use adjacency list later, adjacency matrix is bullshit
-data=pd.read_excel('Input Data.xlsx','Car')
+data=pd.read_excel('Input Data.xlsx')
 l=data.values.tolist()
 node = 8
 alldist=[[] for i in range(node)]

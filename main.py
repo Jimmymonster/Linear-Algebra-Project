@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import VERTICAL, Scrollbar, StringVar, ttk
-from turtle import width
-from typing import Container
+# from turtle import width
+# from typing import Container
 # from tkinter import *
 import pandas as pd
 # import numpy as np
@@ -42,6 +42,7 @@ def findPearson(first,firstmean,second,secondmean):
         uppersum+=(first[k]-firstmean)*(second[k]-secondmean)
         below1+= (first[k]-firstmean)**2
         below2+= (second[k]-secondmean)**2
+    if ((below1*below2)**0.5)==0: return 1.0
     return uppersum/((below1*below2)**0.5)
 def findCosine(first,second):
     uppersum=0 # fraction in cosine similarity formular
@@ -156,164 +157,7 @@ class SampleApp(tk.Tk):
 class StartPage(tk.Frame):
     
     def __init__(self, master):
-        tk.Frame.__init__(self,master,bg=frame_bg)
-        tk.Label(self, text="เลือกสถานที่ที่คุณอยากจะไป เราจะเลือกเส้นทางที่ดีที่สุดให้คุณ", font=(font,font_header_size), fg=font_col,bg=frame_bg).pack(padx=0, pady=20, side=tk.TOP)
-        tk.Label(self, text=allplace[0] + " จุดเริ่มต้น ",font={font,font_body_size}, fg=font_col,bg=frame_bg).pack(padx=0,pady=5,side=tk.TOP)
-        for i in range(1,len(allplace)):
-            chboxVar[allplace[i]]=tk.IntVar()
-            chbox.append(tk.Checkbutton())
-            chbox[i]=tk.Checkbutton(self,text=allplace[i],variable=chboxVar[allplace[i]],font={font,font_body_size},fg=font_col,bg=frame_bg,activebackground=frame_bg,activeforeground=font_col,selectcolor=frame_bg)
-            chbox[i].pack(padx=0,pady=5,side=tk.TOP)
-
-        err = tk.Label(self, text="เลือกสักที่สิ", font=(font,font_header_size), fg="black",bg=frame_bg)
-        err.pack(padx=0, pady=20, side=tk.TOP)
-        tk.Button(self, text='ใส่ข้อมูลเส้นทาง', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(InputPage)).pack(padx=120, pady=20, side=tk.LEFT)
-        tk.Button(self, text='เริ่มคำนวนเส้นทาง', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(ResultPage) if(self.check()) else err.config(fg="red")).pack(padx=0, pady=20, side=tk.TOP)
-    # check if every items is not select
-    def check(self):
-        ch=False
-        for i in range(1,len(allplace)):
-            if(chboxVar[allplace[i]].get()):
-                ch=True
-        return ch
-class InputPage(tk.Frame):
-    
-    def __init__(self,master):
-        self.Containers=[]
-        self.inputxts=[]
-
-        tk.Frame.__init__(self,master,bg=frame_bg)
-
-        TOPFrame=tk.Frame(self,width="1600",height="500", relief='raised',bg=frame_bg)
-        TOPFrame.pack(padx=20,pady=20,fill=tk.BOTH,expand=True)
-        TOPFrame.pack_propagate(0)
-
-        self.my_canvas= tk.Canvas(TOPFrame,bg=frame_bg,highlightbackground="black")
-        self.my_canvas.pack(side=tk.LEFT,fill=tk.BOTH,expand=True)
-        
-        self.scroll= ttk.Scrollbar(TOPFrame,orient=VERTICAL,command=self.my_canvas.yview)
-        self.scroll.pack(side=tk.RIGHT,fill=tk.Y)
-        # style=ttk.Style()
-        # style.theme_use('classic')
-        # style.configure("Vertical.TScrollbar",troughcolor="black")
-
-        self.my_canvas.configure(yscrollcommand=self.scroll.set)
-        self.my_canvas.bind('<Configure>',lambda e:self.my_canvas.configure(scrollregion=self.my_canvas.bbox("all")))
-
-        self.Con= tk.Frame(self.my_canvas,bg=frame_bg)
-        
-        self.my_canvas.create_window((0,0),window=self.Con,anchor="nw")
-
-        Container = tk.Frame(self.Con,bg=frame_bg,height="3",width="1600")
-        Container.pack(padx=5,pady=5,side=tk.TOP)
-        tk.Label(Container,text='ชื่อจุดเริ่มต้น : ', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-        self.startinp= tk.Text(Container,height = 1,width = 20)
-        self.startinp.pack(side=tk.LEFT)
-        
-        Container = tk.Frame(self.Con,bg=frame_bg,height="3",width="1600")
-        inputtxt = [tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20)]
-        for i in range(5):
-            if(i==0):
-                tk.Label(Container,text='เส้นทางจาก', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-            inputtxt[i].pack(padx=20,pady=20, side=tk.LEFT)
-            if(i==0):
-                tk.Label(Container,text=' --> ', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-            if(i==1):
-                tk.Label(Container,text='ระยะทาง:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-            if(i==2):
-                tk.Label(Container,text='เวลา:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-            if(i==3):
-                tk.Label(Container,text='ค่าเดินทาง:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-
-        self.Containers.append(Container)
-        self.inputxts.append(inputtxt)
-        self.Containers[-1].pack(padx=5, pady=5,side=tk.TOP) 
-
-
-        
- 
-        tmp = tk.Frame(self,bg=frame_bg,height="3",width="1600")
-        tmp.pack(padx=20,pady=20,side=tk.TOP)
-        tk.Button(tmp, text='เพิ่มเส้นทาง', font=(font, font_body_size),width=10, height=1,command=lambda: self.add(self.Con)).pack(padx=20, pady=20, side=tk.LEFT)
-        tk.Button(tmp, text='ลบเส้นทาง', font=(font, font_body_size),width=10, height=1,command=lambda: self.remove(self.Con)).pack(padx=20, pady=20, side=tk.LEFT)
-
-        self.errtxt=StringVar()
-        self.errtxt.set("")
-        self.err= tk.Label(self,textvariable=self.errtxt,font=(font,font_body_size),width=50, height=1,fg="red",bg=frame_bg)
-        self.err.pack(padx=20,pady=20,side=tk.TOP)
-        
-        tk.Button(self, text='ย้อนกลับ', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(StartPage)).pack(padx=400, pady=20, side=tk.LEFT)
-        tk.Button(self, text='บันทึก', font=(font, font_body_size),width=20, height=1,command=lambda: self.save(master)).pack(padx=0, pady=20, side=tk.LEFT)
-
-        
-    def add(self,master):
-        Container = tk.Frame(self.Con,bg=frame_bg,height="3",width="1600")
-        inputtxt = [tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20)]
-        for i in range(5):
-            if(i==0):
-                tk.Label(Container,text='เส้นทางจาก', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-            inputtxt[i].pack(padx=20,pady=20, side=tk.LEFT)
-            if(i==0):
-                tk.Label(Container,text=' --> ', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-            if(i==1):
-                tk.Label(Container,text='ระยะทาง:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-            if(i==2):
-                tk.Label(Container,text='เวลา:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-            if(i==3):
-                tk.Label(Container,text='ค่าเดินทาง:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
-
-        self.Containers.append(Container)
-        self.inputxts.append(inputtxt)
-        self.Containers[-1].pack(padx=5, pady=5,side=tk.TOP)
-        self.my_canvas.configure(scrollregion=self.my_canvas.bbox("all"))
-
-    def remove(self,master):
-        if(len(self.Containers)<=1):return
-        self.Containers[-1].pack_forget()
-        self.Containers.pop()
-        self.inputxts.pop()
-        self.my_canvas.configure(scrollregion=self.my_canvas.bbox("all"))
-    
-    def save(self,master):
-        if self.startinp.get(1.0,"end-1c")=="":
-            self.errtxt.set("โปรดใส่จุดเริ่มต้น")
-            print("Null")
-            return
-        if self.inputxts[0][0].get(1.0,"end-1c")=="" or self.inputxts[0][1].get(1.0,"end-1c")=="" or self.inputxts[0][2].get(1.0,"end-1c")=="" or self.inputxts[0][3].get(1.0,"end-1c")=="" or self.inputxts[0][4].get(1.0,"end-1c")=="":
-            self.errtxt.set("โปรดใส่เส้นทางอย่่างน้อย 1 เส้น")
-            return
-        exportcell={}
-        exportcell[self.startinp.get(1.0,"end-1c")]=[self.startinp.get(1.0,"end-1c")]
-        lis=[]
-        lis.append(self.startinp.get(1.0,"end-1c"))
-        mx=-1
-        for i in range(len(self.Containers)):
-            start=self.inputxts[i][0].get(1.0,"end-1c")
-            end=self.inputxts[i][1].get(1.0,"end-1c")
-            dis=self.inputxts[i][2].get(1.0,"end-1c")
-            time=self.inputxts[i][3].get(1.0,"end-1c")
-            cost=self.inputxts[i][4].get(1.0,"end-1c")
-            if not self.isfloat(dis) or not self.isfloat(time) or not self.isfloat(cost):
-                self.errtxt.set("โปรดใส่ ระยะทาง เวลา ค่าใช้จ่าย เป็นตัวเลข")
-                return
-            if not start in exportcell:
-                lis.append(start)
-                exportcell[start]=[]
-                exportcell[start].append(start)
-            if not end in exportcell:
-                lis.append(end)
-                exportcell[end]=[]
-                exportcell[end].append(end)
-            s=end+","+dis+","+time+","+cost
-            exportcell[start].append(s)
-            mx=max(len(exportcell[start]),len(exportcell[end]),mx)
-        for key,val in exportcell.items():
-            while len(exportcell[key])<mx:
-                exportcell[key].append("")
-        
-        data_export=pd.DataFrame(exportcell,columns=lis)
-        data_export=data_export.T
-        data_export.to_excel(r'../Project/Input Data.xlsx',index=False,header=True)
+        #=======================================================
         # Dijkstra and TSP
         exportcell={'Path No': [],
             'Path' : [],
@@ -474,6 +318,184 @@ class InputPage(tk.Frame):
         play(2)
         data_export=pd.DataFrame(exportcell,columns=['Path No', 'Path' , 'Type' ,'Minimum Value' , 'Need to visit' , 'All value(dist,time,cost)','All place visited' ])
         data_export.to_excel(r'../Project/Export Data.xlsx',index=False,header=True)
+        self.reset()
+        #=========================================================
+        tk.Frame.__init__(self,master,bg=frame_bg)
+        tk.Label(self, text="เลือกสถานที่ที่คุณอยากจะไป เราจะเลือกเส้นทางที่ดีที่สุดให้คุณ", font=(font,font_header_size), fg=font_col,bg=frame_bg).pack(padx=0, pady=20, side=tk.TOP)
+        tk.Label(self, text=allplace[0] + " จุดเริ่มต้น ",font={font,font_body_size}, fg=font_col,bg=frame_bg).pack(padx=0,pady=5,side=tk.TOP)
+        for i in range(1,len(allplace)):
+            chboxVar[allplace[i]]=tk.IntVar()
+            chbox.append(tk.Checkbutton())
+            chbox[i]=tk.Checkbutton(self,text=allplace[i],variable=chboxVar[allplace[i]],font={font,font_body_size},fg=font_col,bg=frame_bg,activebackground=frame_bg,activeforeground=font_col,selectcolor=frame_bg)
+            chbox[i].pack(padx=0,pady=5,side=tk.TOP)
+
+        err = tk.Label(self, text="เลือกสักที่สิ", font=(font,font_header_size), fg="black",bg=frame_bg)
+        err.pack(padx=0, pady=20, side=tk.TOP)
+        tk.Button(self, text='ใส่ข้อมูลเส้นทาง', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(InputPage)).pack(padx=120, pady=20, side=tk.LEFT)
+        tk.Button(self, text='เริ่มคำนวนเส้นทาง', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(ResultPage) if(self.check()) else err.config(fg="red")).pack(padx=0, pady=20, side=tk.TOP)
+    # check if every items is not select
+    def check(self):
+        ch=False
+        for i in range(1,len(allplace)):
+            if(chboxVar[allplace[i]].get()):
+                ch=True
+        return ch
+    def reset(self):
+        global inputdata,l,key,node
+        inputdata=pd.read_excel('Input Data.xlsx','Sheet1')
+        l=inputdata.values.tolist()
+        key={}
+        node = len(l)
+        for i in range(node):
+            key[l[i][0]]=i
+            key[i]=l[i][0]
+        #========================================
+        global allplace,chboxVar,exportdata,chbox
+        exportdata=pd.read_excel('Export Data.xlsx')
+        l=exportdata.values.tolist()
+        allplace=l[-1][-3].split(',')
+        chboxVar={}
+        chbox=[0]
+        #========================================
+        
+class InputPage(tk.Frame):
+    
+    def __init__(self,master):
+        self.Containers=[]
+        self.inputxts=[]
+
+        tk.Frame.__init__(self,master,bg=frame_bg)
+
+        TOPFrame=tk.Frame(self,width="1600",height="500", relief='raised',bg=frame_bg)
+        TOPFrame.pack(padx=20,pady=20,fill=tk.BOTH,expand=True)
+        TOPFrame.pack_propagate(0)
+
+        self.my_canvas= tk.Canvas(TOPFrame,bg=frame_bg,highlightbackground="black")
+        self.my_canvas.pack(side=tk.LEFT,fill=tk.BOTH,expand=True)
+        
+        self.scroll= ttk.Scrollbar(TOPFrame,orient=VERTICAL,command=self.my_canvas.yview)
+        self.scroll.pack(side=tk.RIGHT,fill=tk.Y)
+        # style=ttk.Style()
+        # style.theme_use('classic')
+        # style.configure("Vertical.TScrollbar",troughcolor="black")
+
+        self.my_canvas.configure(yscrollcommand=self.scroll.set)
+        self.my_canvas.bind('<Configure>',lambda e:self.my_canvas.configure(scrollregion=self.my_canvas.bbox("all")))
+
+        self.Con= tk.Frame(self.my_canvas,bg=frame_bg)
+        
+        self.my_canvas.create_window((0,0),window=self.Con,anchor="nw")
+
+        Container = tk.Frame(self.Con,bg=frame_bg,height="3",width="1600")
+        Container.pack(padx=5,pady=5,side=tk.TOP)
+        tk.Label(Container,text='ชื่อจุดเริ่มต้น : ', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+        self.startinp= tk.Text(Container,height = 1,width = 20)
+        self.startinp.pack(side=tk.LEFT)
+        
+        Container = tk.Frame(self.Con,bg=frame_bg,height="3",width="1600")
+        inputtxt = [tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20)]
+        for i in range(5):
+            if(i==0):
+                tk.Label(Container,text='เส้นทางจาก', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+            inputtxt[i].pack(padx=20,pady=20, side=tk.LEFT)
+            if(i==0):
+                tk.Label(Container,text=' --> ', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+            if(i==1):
+                tk.Label(Container,text='ระยะทาง:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+            if(i==2):
+                tk.Label(Container,text='เวลา:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+            if(i==3):
+                tk.Label(Container,text='ค่าเดินทาง:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+
+        self.Containers.append(Container)
+        self.inputxts.append(inputtxt)
+        self.Containers[-1].pack(padx=5, pady=5,side=tk.TOP) 
+
+
+        
+ 
+        tmp = tk.Frame(self,bg=frame_bg,height="3",width="1600")
+        tmp.pack(padx=20,pady=20,side=tk.TOP)
+        tk.Button(tmp, text='เพิ่มเส้นทาง', font=(font, font_body_size),width=10, height=1,command=lambda: self.add(self.Con)).pack(padx=20, pady=20, side=tk.LEFT)
+        tk.Button(tmp, text='ลบเส้นทาง', font=(font, font_body_size),width=10, height=1,command=lambda: self.remove(self.Con)).pack(padx=20, pady=20, side=tk.LEFT)
+
+        self.errtxt=StringVar()
+        self.errtxt.set("")
+        self.err= tk.Label(self,textvariable=self.errtxt,font=(font,font_body_size),width=50, height=1,fg="red",bg=frame_bg)
+        self.err.pack(padx=20,pady=20,side=tk.TOP)
+        
+        tk.Button(self, text='ย้อนกลับ', font=(font, font_body_size),width=20, height=1,command=lambda: master.switch_frame(StartPage)).pack(padx=400, pady=20, side=tk.LEFT)
+        tk.Button(self, text='บันทึก', font=(font, font_body_size),width=20, height=1,command=lambda: self.save(master)).pack(padx=0, pady=20, side=tk.LEFT)
+
+        
+    def add(self,master):
+        Container = tk.Frame(self.Con,bg=frame_bg,height="3",width="1600")
+        inputtxt = [tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20),tk.Text(Container,height = 1,width = 20)]
+        for i in range(5):
+            if(i==0):
+                tk.Label(Container,text='เส้นทางจาก', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+            inputtxt[i].pack(padx=20,pady=20, side=tk.LEFT)
+            if(i==0):
+                tk.Label(Container,text=' --> ', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+            if(i==1):
+                tk.Label(Container,text='ระยะทาง:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+            if(i==2):
+                tk.Label(Container,text='เวลา:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+            if(i==3):
+                tk.Label(Container,text='ค่าเดินทาง:', font=(font,font_body_size), fg=font_col,bg=frame_bg).pack(side=tk.LEFT)
+
+        self.Containers.append(Container)
+        self.inputxts.append(inputtxt)
+        self.Containers[-1].pack(padx=5, pady=5,side=tk.TOP)
+        self.my_canvas.configure(scrollregion=self.my_canvas.bbox("all"))
+
+    def remove(self,master):
+        if(len(self.Containers)<=1):return
+        self.Containers[-1].pack_forget()
+        self.Containers.pop()
+        self.inputxts.pop()
+        self.my_canvas.configure(scrollregion=self.my_canvas.bbox("all"))
+    
+    def save(self,master):
+        if self.startinp.get(1.0,"end-1c")=="":
+            self.errtxt.set("โปรดใส่จุดเริ่มต้น")
+            print("Null")
+            return
+        if self.inputxts[0][0].get(1.0,"end-1c")=="" or self.inputxts[0][1].get(1.0,"end-1c")=="" or self.inputxts[0][2].get(1.0,"end-1c")=="" or self.inputxts[0][3].get(1.0,"end-1c")=="" or self.inputxts[0][4].get(1.0,"end-1c")=="":
+            self.errtxt.set("โปรดใส่เส้นทางอย่่างน้อย 1 เส้น")
+            return
+        exportcell={}
+        exportcell[self.startinp.get(1.0,"end-1c")]=[self.startinp.get(1.0,"end-1c")]
+        lis=[]
+        lis.append(self.startinp.get(1.0,"end-1c"))
+        mx=-1
+        for i in range(len(self.Containers)):
+            start=self.inputxts[i][0].get(1.0,"end-1c")
+            end=self.inputxts[i][1].get(1.0,"end-1c")
+            dis=self.inputxts[i][2].get(1.0,"end-1c")
+            time=self.inputxts[i][3].get(1.0,"end-1c")
+            cost=self.inputxts[i][4].get(1.0,"end-1c")
+            if not self.isfloat(dis) or not self.isfloat(time) or not self.isfloat(cost):
+                self.errtxt.set("โปรดใส่ ระยะทาง เวลา ค่าใช้จ่าย เป็นตัวเลข")
+                return
+            if not start in exportcell:
+                lis.append(start)
+                exportcell[start]=[]
+                exportcell[start].append(start)
+            if not end in exportcell:
+                lis.append(end)
+                exportcell[end]=[]
+                exportcell[end].append(end)
+            s=end+","+dis+","+time+","+cost
+            exportcell[start].append(s)
+            mx=max(len(exportcell[start]),len(exportcell[end]),mx)
+        for key,val in exportcell.items():
+            while len(exportcell[key])<mx:
+                exportcell[key].append("")
+        
+        data_export=pd.DataFrame(exportcell,columns=lis)
+        data_export=data_export.T
+        data_export.to_excel(r'../Project/Input Data.xlsx',index=False,header=True)
         self.reset()
 
         master.switch_frame(StartPage)
