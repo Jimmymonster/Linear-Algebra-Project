@@ -317,7 +317,7 @@ class StartPage(tk.Frame):
         play(1)
         play(2)
         data_export=pd.DataFrame(exportcell,columns=['Path No', 'Path' , 'Type' ,'Minimum Value' , 'Need to visit' , 'All value(dist,time,cost)','All place visited' ])
-        data_export.to_excel(r'../Project/Export Data.xlsx',index=False,header=True)
+        data_export.to_excel(r'Export Data.xlsx',index=False,header=True)
         self.reset()
         #=========================================================
         tk.Frame.__init__(self,master,bg=frame_bg)
@@ -495,7 +495,7 @@ class InputPage(tk.Frame):
         
         data_export=pd.DataFrame(exportcell,columns=lis)
         data_export=data_export.T
-        data_export.to_excel(r'../Project/Input Data.xlsx',index=False,header=True)
+        data_export.to_excel(r'Input Data.xlsx',index=False,header=True)
         self.reset()
 
         master.switch_frame(StartPage)
