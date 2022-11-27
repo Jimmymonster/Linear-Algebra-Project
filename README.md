@@ -11,3 +11,6 @@ pip install openpyxl <br/>
 pip install xlrd <br/>
 
 ถ้าเกิดปัญหา หา file directory ไม่เจอแก้เองนะ
+
+Update
+ปัจจุบันมีบัคเกี่ยวกับ float นิดหน่อยทำให้คำนวนคลาดเคลื่อน
