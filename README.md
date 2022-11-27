@@ -9,3 +9,5 @@ pip install pandas <br/>
 pip install tk <br/>
 pip install openpyxl <br/>
 pip install xlrd <br/>
+
+ถ้าเกิดปัญหา หา file directory ไม่เจอแก้เองนะ
