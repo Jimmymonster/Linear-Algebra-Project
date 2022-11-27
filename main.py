@@ -261,7 +261,9 @@ class StartPage(tk.Frame):
                     ans=1e9
                     next=0
                     for i in range(node):
-                        if mark&(1<<i)==0 and math.floor(self.dp[i][mark|(1<<i)])==math.floor(n-self.dist[now][i]):
+                        a=self.dp[i][mark|(1<<i)]
+                        b=n-math.floor(self.dist[now][i])
+                        if mark&(1<<i)==0 and (math.floor(a)==math.floor(b) or math.ceil(a)==math.ceil(b) or math.floor(a)==math.ceil(b) or math.floor(b)==math.ceil(a)):
                             next=i
                             break
                     if next!=0:
