@@ -8,6 +8,7 @@ import pandas as pd
 # from matplotlib.figure import Figure
 # from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,NavigationToolbar2Tk)
 # import openpyxl
+import math
 from queue import PriorityQueue
 # Global Var
 bg='black'
@@ -245,7 +246,10 @@ class StartPage(tk.Frame):
                 # print("{0:b}".format(need))
                 self.dp = [[-1]*(1 << (node)) for _ in range(node)]
                 mincost=tsp(0,1,need)
-                # print(mincost)
+                # if need==259 and type==0:
+                #     print(mincost)
+                #     print(self.dp)
+                #print(mincost)
 
                 # === Traceback Path ===
                 trace=[0]
@@ -257,7 +261,7 @@ class StartPage(tk.Frame):
                     ans=1e9
                     next=0
                     for i in range(node):
-                        if mark&(1<<i)==0 and self.dp[i][mark|(1<<i)]==n-self.dist[now][i]:
+                        if mark&(1<<i)==0 and math.floor(self.dp[i][mark|(1<<i)])==math.floor(n-self.dist[now][i]):
                             next=i
                             break
                     if next!=0:
@@ -271,7 +275,8 @@ class StartPage(tk.Frame):
                         trace.append(i)
                         break
                 trace.append(0)
-                # print(trace)
+                # if need==259 and type==0:
+                #   print(trace)
                 anspath=[0]
                 for i in range(len(trace)-1):
                     anspath+=self.path[trace[i]][trace[i+1]][1:]
@@ -524,6 +529,9 @@ class ResultPage(tk.Frame):
         dpearson,tpearson,cpearson,dcosine,tcosine,ccosine,covDis,covTime,covCost=calculate()
         pearson=[dpearson,tpearson,cpearson]
         cosine=[dcosine,tcosine,ccosine]
+        # print("Closest to 1 Pearson Value and it's index in Export Data.xlsx (Minimum Distance Dataset) = {0},{1}".format(-pearson[0].queue[0][0],pearson[0].queue[0][1]))
+        # print("Closest to 1 Cosine  Value and it's index in Export Data.xlsx (Minimum Distance Dataset) = {0},{1}".format(-cosine[0].queue[0][0],cosine[0].queue[0][1]))
+        # print("Covarince Matrix of Minimum Distance Dataset : {0}".format(covDis))
 
         tabControl = ttk.Notebook(self,width=1200, height=500)
         tab_ = [ttk.Frame(tabControl),ttk.Frame(tabControl),ttk.Frame(tabControl),ttk.Frame(tabControl)]
