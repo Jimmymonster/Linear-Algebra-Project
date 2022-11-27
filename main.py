@@ -263,13 +263,17 @@ class StartPage(tk.Frame):
                     for i in range(node):
                         a=self.dp[i][mark|(1<<i)]
                         b=n-math.floor(self.dist[now][i])
-                        if mark&(1<<i)==0 and (math.floor(a)==math.floor(b) or math.ceil(a)==math.ceil(b) or math.floor(a)==math.ceil(b) or math.floor(b)==math.ceil(a)):
+                        c=n-math.floor(self.dist[i][now])
+                        if mark&(1<<i)==0 and (a==b or math.floor(a)==math.floor(b) or math.ceil(a)==math.ceil(b) or math.floor(a)==math.ceil(b) or math.floor(b)==math.ceil(a) or a==c or math.floor(a)==math.floor(c) or math.ceil(a)==math.ceil(c) or math.floor(a)==math.ceil(c) or math.floor(c)==math.ceil(a)):
                             next=i
                             break
                     if next!=0:
                         trace.append(next)
                     cou+=1
-                    n-=self.dist[now][i]
+                    if a==b or math.floor(a)==math.floor(b) or math.ceil(a)==math.ceil(b) or math.floor(a)==math.ceil(b) or math.floor(b)==math.ceil(a):
+                        n-=self.dist[now][i]
+                    elif a==c or math.floor(a)==math.floor(c) or math.ceil(a)==math.ceil(c) or math.floor(a)==math.ceil(c) or math.floor(c)==math.ceil(a):
+                        n-=self.dist[i][now]
                     mark|=1<<next
                     now=next
                 for i in range(node):
